@@ -167,6 +167,7 @@ namespace NBitcoin
             var builder = new NetworkBuilder()
 		        .SetName("SidechainTestNet")
                 .SetRootFolderName(SidechainIdentifier.Instance.Name)
+                .SetDefaultConfigFilename($"{SidechainIdentifier.Instance.Name}.conf")
                 .SetConsensus(consensus)
 		        .SetMagic(magic)
 		        .SetGenesis(genesis)
