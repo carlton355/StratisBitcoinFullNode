@@ -6,22 +6,55 @@ using Newtonsoft.Json;
 
 namespace NBitcoin
 {
-
-    public class NetworkInfo : NetworkInfoRequest
+    public class NetworkInfoRequest
     {
+        public uint Time { get; set; }
+
+        public uint Nonce { get; set; }
+
+        public int Port { get; set; }
+
+        public int RpcPort { get; set; }
+
+        public int AddressPrefix { get; set; }
+
+        public NetworkInfoRequest(uint time, uint nonce, int port, int rpcPort, int addressPrefix)
+        {
+            this.Time = time;
+            this.Nonce = nonce;
+            this.Port = port;
+            this.RpcPort = rpcPort;
+            this.AddressPrefix = addressPrefix;
+        }
+
+        public NetworkInfoRequest()
+        {
+
+        }
+    }
+
+    public class NetworkInfo
+    {
+        public uint Time { get; }
+
+        public uint Nonce { get; }
+
+        public int Port { get; }
+
+        public int RpcPort { get; }
+
+        public int AddressPrefix { get; }
+
         [JsonIgnore]    //this is calculated
         public uint256 GenesisHash { get; }
-        public string GenesisHashHex { get; }
-        public string NetworkName { get; }
-        public string CoinSymbol { get; }
-        public byte[] Magic { get; }
-        public int ApiPort { get; }
 
+        public string GenesisHashHex { get; }
+
+        public string NetworkName { get; }
 
         [JsonConstructor]
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix, 
-                            string genesisHashHex, string coinSymbol, byte[] magic, int apiPort)
-            : this (networkName, time, nonce, port, rpcPort, addressPrefix, coinSymbol, magic, apiPort)
+        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix, string genesisHashHex)
+            : this(networkName, time, nonce, port, rpcPort, addressPrefix)
         {
             //when we deserialize the hex hash from our store we check the
             //calculated hash against the stored hash.
@@ -29,10 +62,13 @@ namespace NBitcoin
                 throw new ArgumentException("The genesis hash input was not equal to the computed hash.");
         }
 
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix,
-                            string coinSymbol, byte[] magic, int apiPort) 
-            : base(time, nonce, port, rpcPort, addressPrefix)
+        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix)
         {
+            this.Time = time;
+            this.Nonce = nonce;
+            this.Port = port;
+            this.RpcPort = rpcPort;
+            this.AddressPrefix = addressPrefix;
             this.NetworkName = networkName;
 
             //calculate genesis block hash to store with the info.
@@ -42,11 +78,7 @@ namespace NBitcoin
             genesis.Header.Nonce = nonce;
             genesis.Header.Bits = this.GetPowLimit();
             this.GenesisHash = genesis.GetHash();
-            this.GenesisHashHex = this.GenesisHash.ToString();
-
-            CoinSymbol = coinSymbol;
-            Magic = magic ?? new byte[4];
-            ApiPort = apiPort;
+            this.GenesisHashHex = genesis.GetHash().ToString();
         }
 
         private Target GetPowLimit()
@@ -57,9 +89,9 @@ namespace NBitcoin
             throw new ArgumentException("invalid sidechain network name");
         }
 
-        internal static NetworkInfo FromNetworkInfoRequest(string networkName, NetworkInfoRequest request, string coinSymbol, byte[] magic, int apiPort)
+        internal static NetworkInfo FromNetworkInfoRequest(string networkName, NetworkInfoRequest request)
         {
-            return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix, coinSymbol, magic, apiPort);
+            return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix);
         }
     }
 }
