@@ -39,15 +39,26 @@ namespace Stratis.Bitcoin.Features.Miner
 
         public override BlockTemplate CreateNewBlock(Script scriptPubKeyIn, bool fMineWitnessTx = true)
         {
+            //this is a temporary fix
+            //see https://github.com/stratisproject/StratisBitcoinFullNode/issues/1113
+            //https://github.com/stratisproject/StratisBitcoinFullNode/pull/1014/files
+
             this.logger.LogTrace("({0}.{1}:{2},{3}:{4})", nameof(scriptPubKeyIn), nameof(scriptPubKeyIn.Length), scriptPubKeyIn.Length, nameof(fMineWitnessTx), fMineWitnessTx);
 
             base.CreateNewBlock(scriptPubKeyIn, fMineWitnessTx);
 
-            this.coinbase.Outputs[0].ScriptPubKey = new Script();
-            this.coinbase.Outputs[0].Value = Money.Zero;
+            //this.coinbase.Outputs[0].ScriptPubKey = new Script();
+            //this.coinbase.Outputs[0].Value = Money.Zero;
 
             IPosConsensusValidator posValidator = this.consensusLoop.Validator as IPosConsensusValidator;
             Guard.NotNull(posValidator, nameof(posValidator));
+
+            // Added this in to try fix coinbase zero value bug
+            this.coinbase.Outputs[0].Value = this.fees + posValidator.GetProofOfWorkReward(this.height);
+            this.pblocktemplate.TotalFee = this.fees;
+            int nSerializeSize = this.pblock.GetSerializedSize();
+            this.UpdateHeaders();
+            this.TestBlockValidity();
 
             this.logger.LogTrace("(-)");
             return this.pblocktemplate;
