@@ -83,7 +83,7 @@ namespace NBitcoin
 
         private Target GetPowLimit()
         {
-            if (this.NetworkName == "SidechainMain") return new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+            if (this.NetworkName == "SidechainMain") return new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
             if (this.NetworkName == "SidechainTestNet") return new Target(uint256.Parse("0000ffff00000000000000000000000000000000000000000000000000000000"));
             if (this.NetworkName == "SidechainRegTest") return new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
             throw new ArgumentException("invalid sidechain network name");
