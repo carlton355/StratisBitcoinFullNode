@@ -20,7 +20,7 @@ namespace NBitcoin
 	{
 		private static Network InitSidechainMain()
 		{
-          var networkInfo = SidechainIdentifier.Instance.InfoProvider
+            var networkInfo = SidechainIdentifier.Instance.InfoProvider
 		        .GetSidechainInfo(SidechainIdentifier.Instance.Name).MainNet;
 
             Block.BlockSignature = true;
@@ -63,6 +63,9 @@ namespace NBitcoin
             Block genesis = CreateSidechainGenesisBlock(networkInfo.Time, networkInfo.Nonce, 0x1e0fffff, 1, Money.Zero);
             consensus.HashGenesisBlock = genesis.GetHash(consensus.NetworkOptions);
 
+		    Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
+		    //Assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
+
             // The message start string is designed to be unlikely to occur in normal data.
             // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
             // a large 4-byte int at any alignment.
@@ -72,9 +75,6 @@ namespace NBitcoin
             messageStart[2] = 0x22;
             messageStart[3] = 0x05;
             var magic = BitConverter.ToUInt32(messageStart, 0); //0x5223570; 
-
-            Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
-            //Assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
 
             var builder = new NetworkBuilder()
                 .SetName("SidechainMainNet")
@@ -202,8 +202,8 @@ namespace NBitcoin
             if (net != null)
                 return net;
 
-		var networkInfo = SidechainIdentifier.Instance.InfoProvider
-			.GetSidechainInfo(SidechainIdentifier.Instance.Name).RegTest;
+		    var networkInfo = SidechainIdentifier.Instance.InfoProvider
+			    .GetSidechainInfo(SidechainIdentifier.Instance.Name).RegTest;
 
             Block.BlockSignature = true;
             Transaction.TimeStamp = true;

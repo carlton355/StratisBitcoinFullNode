@@ -1,60 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 
 namespace NBitcoin
 {
-    public class NetworkInfoRequest
+
+    public class NetworkInfo : NetworkInfoRequest
     {
-        public uint Time { get; set; }
-
-        public uint Nonce { get; set; }
-
-        public int Port { get; set; }
-
-        public int RpcPort { get; set; }
-
-        public int AddressPrefix { get; set; }
-
-        public NetworkInfoRequest(uint time, uint nonce, int port, int rpcPort, int addressPrefix)
-        {
-            this.Time = time;
-            this.Nonce = nonce;
-            this.Port = port;
-            this.RpcPort = rpcPort;
-            this.AddressPrefix = addressPrefix;
-        }
-
-        public NetworkInfoRequest()
-        {
-
-        }
-    }
-
-    public class NetworkInfo
-    {
-        public uint Time { get; }
-
-        public uint Nonce { get; }
-
-        public int Port { get; }
-
-        public int RpcPort { get; }
-
-        public int AddressPrefix { get; }
-
         [JsonIgnore]    //this is calculated
         public uint256 GenesisHash { get; }
-
         public string GenesisHashHex { get; }
-
         public string NetworkName { get; }
 
         [JsonConstructor]
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix, string genesisHashHex)
-            : this(networkName, time, nonce, port, rpcPort, addressPrefix)
+        public NetworkInfo(string networkName, uint time, uint nonce, string coinSymbol, uint messageStart, int addressPrefix,
+            int port, int rpcPort, int apiPort, string genesisHashHex)
+            : this(networkName, time, nonce, coinSymbol, messageStart, addressPrefix, port, rpcPort, apiPort)
         {
             //when we deserialize the hex hash from our store we check the
             //calculated hash against the stored hash.
@@ -62,13 +22,10 @@ namespace NBitcoin
                 throw new ArgumentException("The genesis hash input was not equal to the computed hash.");
         }
 
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix)
+        public NetworkInfo(string networkName, uint time, uint nonce, string coinSymbol, uint messageStart, int addressPrefix,
+            int port, int rpcPort, int apiPort)
+            : base(time, nonce, coinSymbol, messageStart, addressPrefix, port, rpcPort, apiPort)
         {
-            this.Time = time;
-            this.Nonce = nonce;
-            this.Port = port;
-            this.RpcPort = rpcPort;
-            this.AddressPrefix = addressPrefix;
             this.NetworkName = networkName;
 
             //calculate genesis block hash to store with the info.
@@ -78,7 +35,7 @@ namespace NBitcoin
             genesis.Header.Nonce = nonce;
             genesis.Header.Bits = this.GetPowLimit();
             this.GenesisHash = genesis.GetHash();
-            this.GenesisHashHex = genesis.GetHash().ToString();
+            this.GenesisHashHex = this.GenesisHash.ToString();
         }
 
         private Target GetPowLimit()
@@ -91,7 +48,7 @@ namespace NBitcoin
 
         internal static NetworkInfo FromNetworkInfoRequest(string networkName, NetworkInfoRequest request)
         {
-            return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix);
+            return new NetworkInfo(networkName, request.Time, request.Nonce, request.CoinSymbol, request.MessageStart, request.AddressPrefix, request.Port, request.RpcPort, request.ApiPort);
         }
     }
 }
