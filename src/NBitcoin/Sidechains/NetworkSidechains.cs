@@ -60,7 +60,7 @@ namespace NBitcoin
 
 		    consensus.DefaultAssumeValid = null;//new uint256("0x8c2cf95f9ca72e13c8c4cdf15c2d7cc49993946fb49be4be147e106d502f1869"); // 642930
 
-            Block genesis = CreateStratisGenesisBlock(networkInfo.Time, networkInfo.Nonce, 0x1e0fffff, 1, Money.Zero);
+            Block genesis = CreateSidechainGenesisBlock(networkInfo.Time, networkInfo.Nonce, 0x1e0fffff, 1, Money.Zero);
             consensus.HashGenesisBlock = genesis.GetHash(consensus.NetworkOptions);
 
             // The message start string is designed to be unlikely to occur in normal data.
