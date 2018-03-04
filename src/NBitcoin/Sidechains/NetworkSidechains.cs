@@ -76,7 +76,7 @@ namespace NBitcoin
             Assert(consensus.HashGenesisBlock.ToString() == networkInfo.GenesisHashHex);
             
             var builder = new NetworkBuilder()
-                .SetName("SidechainMainNet")
+                .SetName("SidechainMain")
                 .SetRootFolderName(SidechainIdentifier.Instance.Name)
                 .SetDefaultConfigFilename($"{SidechainIdentifier.Instance.Name}.conf")
                 .SetConsensus(consensus)
