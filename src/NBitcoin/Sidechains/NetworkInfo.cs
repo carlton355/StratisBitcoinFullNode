@@ -72,13 +72,9 @@ namespace NBitcoin
             this.NetworkName = networkName;
 
             //calculate genesis block hash to store with the info.
-            //our intent is to use the genesis hash as a hash. novel!
-            Block genesis = Network.StratisMain.GetGenesis().Clone();
-            genesis.Header.Time = time;
-            genesis.Header.Nonce = nonce;
-            genesis.Header.Bits = this.GetPowLimit();
-            this.GenesisHash = genesis.GetHash();
-            this.GenesisHashHex = genesis.GetHash().ToString();
+            //our intent is to use the genesis hash as a hash.
+            this.GenesisHash = this.ComputeGenesisHash(networkName, time, nonce);
+            this.GenesisHashHex = this.GenesisHash.ToString();
         }
 
         private Target GetPowLimit()
