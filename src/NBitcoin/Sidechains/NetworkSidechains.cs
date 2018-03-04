@@ -20,7 +20,7 @@ namespace NBitcoin
 	{
 		private static Network InitSidechainMain()
 		{
-          var networkInfo = SidechainIdentifier.Instance.InfoProvider
+            var networkInfo = SidechainIdentifier.Instance.InfoProvider
 		        .GetSidechainInfo(SidechainIdentifier.Instance.Name).MainNet;
 
             Block.BlockSignature = true;
@@ -73,10 +73,8 @@ namespace NBitcoin
             messageStart[3] = 0x05;
             var magic = BitConverter.ToUInt32(messageStart, 0); //0x5223570; 
 
-            //Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
-            Assert(consensus.HashGenesisBlock == uint256.Parse("41abc054d831276ac59d733c82839a94d644d605bbf8197f442f164809e3d049"));
-            Assert(genesis.Transactions[0].GetHash() == uint256.Parse("1bc7c2c62f36afb4cbdab73836764a91233a3882845418b04d010f903bd590db"));
-
+            Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
+            
             var builder = new NetworkBuilder()
                 .SetName("SidechainMainNet")
                 .SetRootFolderName(SidechainIdentifier.Instance.Name)
