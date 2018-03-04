@@ -93,5 +93,29 @@ namespace NBitcoin
         {
             return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix);
         }
+
+        private uint256 ComputeGenesisHash(string networkName, uint time, uint nonce)
+        {
+            if (networkName == "SidechainMain")
+            {
+                Block.BlockSignature = true;
+                Transaction.TimeStamp = true;
+
+                Block genesis = Network.CreateSidechainGenesisBlock(time, nonce, 0x1e0fffff, 1, Money.Zero);
+                uint256 ui1 = genesis.GetHash();
+                genesis.Header.Time = time;
+                genesis.Header.Nonce = nonce;
+                genesis.Header.Bits = this.GetPowLimit();
+                return genesis.GetHash();
+            }
+            else
+            {
+                Block genesis = Network.SidechainMain.GetGenesis().Clone();
+                genesis.Header.Time = time;
+                genesis.Header.Nonce = nonce;
+                genesis.Header.Bits = this.GetPowLimit();
+                return genesis.GetHash();
+            }
+        }
     }
 }
