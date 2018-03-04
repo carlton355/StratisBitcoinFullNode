@@ -73,7 +73,7 @@ namespace NBitcoin
             messageStart[3] = 0x05;
             var magic = BitConverter.ToUInt32(messageStart, 0); //0x5223570; 
 
-            Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
+            Assert(consensus.HashGenesisBlock.ToString() == networkInfo.GenesisHashHex);
             
             var builder = new NetworkBuilder()
                 .SetName("SidechainMainNet")
@@ -139,7 +139,7 @@ namespace NBitcoin
             Block.BlockSignature = true;
             Transaction.TimeStamp = true;
 
-            var consensus = Network.StratisMain.Consensus.Clone();
+            var consensus = Network.SidechainMain.Consensus.Clone();
             consensus.PowLimit = new Target(uint256.Parse("0000ffff00000000000000000000000000000000000000000000000000000000"));
 
             // The message start string is designed to be unlikely to occur in normal data.
@@ -158,8 +158,7 @@ namespace NBitcoin
             genesis.Header.Bits = consensus.PowLimit;
             consensus.HashGenesisBlock = genesis.GetHash();
 
-            ////uint256.Parse("5bdec714f54f673d133a8aab62478708bae6ad99e096455cec4d7864ccda6f8c")
-            Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash );
+            Assert(consensus.HashGenesisBlock.ToString() == networkInfo.GenesisHashHex );
 
             consensus.DefaultAssumeValid = null; // turn off assumevalid for sidechains.
 
@@ -207,7 +206,7 @@ namespace NBitcoin
             Block.BlockSignature = true;
             Transaction.TimeStamp = true;
 
-            var consensus = Network.StratisTest.Consensus.Clone();
+            var consensus = Network.SidechainTestNet.Consensus.Clone();
             consensus.PowLimit = new Target(uint256.Parse("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 
             consensus.PowAllowMinDifficultyBlocks = true;
@@ -226,7 +225,7 @@ namespace NBitcoin
             genesis.Header.Bits = consensus.PowLimit;
             consensus.HashGenesisBlock = genesis.GetHash(consensus.NetworkOptions);
 
-            Assert(consensus.HashGenesisBlock == networkInfo.GenesisHash);
+            Assert(consensus.HashGenesisBlock.ToString() == networkInfo.GenesisHashHex);
 
             consensus.DefaultAssumeValid = null; // turn off assumevalid for regtest.
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
@@ -46,9 +48,9 @@ namespace NBitcoin
         public int AddressPrefix { get; }
 
         [JsonIgnore]    //this is calculated
-        public uint256 GenesisHash { get; }
+        public uint256 GenesisHash { get; private set; }
 
-        public string GenesisHashHex { get; }
+        public string GenesisHashHex { get; private set; }
 
         public string NetworkName { get; }
 
@@ -56,10 +58,7 @@ namespace NBitcoin
         public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix, string genesisHashHex)
             : this(networkName, time, nonce, port, rpcPort, addressPrefix)
         {
-            //when we deserialize the hex hash from our store we check the
-            //calculated hash against the stored hash.
-            if (this.GenesisHashHex != genesisHashHex)
-                throw new ArgumentException("The genesis hash input was not equal to the computed hash.");
+            this.GenesisHashHex = genesisHashHex;
         }
 
         public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix)
@@ -70,11 +69,6 @@ namespace NBitcoin
             this.RpcPort = rpcPort;
             this.AddressPrefix = addressPrefix;
             this.NetworkName = networkName;
-
-            //calculate genesis block hash to store with the info.
-            //our intent is to use the genesis hash as a hash.
-            this.GenesisHash = this.ComputeGenesisHash(networkName, time, nonce);
-            this.GenesisHashHex = this.GenesisHash.ToString();
         }
 
         private Target GetPowLimit()
@@ -90,27 +84,29 @@ namespace NBitcoin
             return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix);
         }
 
-        private uint256 ComputeGenesisHash(string networkName, uint time, uint nonce)
+        internal static void ComputeGenesisHash(NetworkInfo networkInfo)
         {
-            if (networkName == "SidechainMain")
+            if (networkInfo.NetworkName == "SidechainMain")
             {
                 Block.BlockSignature = true;
                 Transaction.TimeStamp = true;
 
-                Block genesis = Network.CreateSidechainGenesisBlock(time, nonce, 0x1e0fffff, 1, Money.Zero);
+                Block genesis = Network.CreateSidechainGenesisBlock(networkInfo.Time, networkInfo.Nonce, 0x1e0fffff, 1, Money.Zero);
                 uint256 ui1 = genesis.GetHash();
-                genesis.Header.Time = time;
-                genesis.Header.Nonce = nonce;
-                genesis.Header.Bits = this.GetPowLimit();
-                return genesis.GetHash();
+                genesis.Header.Time = networkInfo.Time;
+                genesis.Header.Nonce = networkInfo.Nonce;
+                genesis.Header.Bits = networkInfo.GetPowLimit();
+                networkInfo.GenesisHash = genesis.GetHash();
+                networkInfo.GenesisHashHex = networkInfo.GenesisHash.ToString();
             }
             else
             {
-                Block genesis = Network.SidechainMain.GetGenesis().Clone();
-                genesis.Header.Time = time;
-                genesis.Header.Nonce = nonce;
-                genesis.Header.Bits = this.GetPowLimit();
-                return genesis.GetHash();
+                Block genesis = networkInfo.NetworkName == "SidechainTestNet" ? Network.SidechainMain.GetGenesis().Clone() : Network.SidechainTestNet.GetGenesis().Clone();
+                genesis.Header.Time = networkInfo.Time;
+                genesis.Header.Nonce = networkInfo.Nonce;
+                genesis.Header.Bits = networkInfo.GetPowLimit();
+                networkInfo.GenesisHash = genesis.GetHash();
+                networkInfo.GenesisHashHex = networkInfo.GenesisHash.ToString();
             }
         }
     }
