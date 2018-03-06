@@ -8,68 +8,20 @@ using Newtonsoft.Json;
 
 namespace NBitcoin
 {
-    public class NetworkInfoRequest
+   public class NetworkInfo : NetworkInfoRequest
     {
-        public uint Time { get; set; }
-
-        public uint Nonce { get; set; }
-
-        public int Port { get; set; }
-
-        public int RpcPort { get; set; }
-
-        public int AddressPrefix { get; set; }
-
-        public NetworkInfoRequest(uint time, uint nonce, int port, int rpcPort, int addressPrefix)
-        {
-            this.Time = time;
-            this.Nonce = nonce;
-            this.Port = port;
-            this.RpcPort = rpcPort;
-            this.AddressPrefix = addressPrefix;
-        }
-
-        public NetworkInfoRequest()
-        {
-
-        }
-    }
-
-    public class NetworkInfo
-    {
-        public uint Time { get; }
-
-        public uint Nonce { get; }
-
-        public int Port { get; }
-
-        public int RpcPort { get; }
-
-        public int AddressPrefix { get; }
-
         [JsonIgnore]    //this is calculated
         public uint256 GenesisHash { get; private set; }
-
-        public string GenesisHashHex { get; private set; }
 
         public string NetworkName { get; }
 
         [JsonConstructor]
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix, string genesisHashHex)
-            : this(networkName, time, nonce, port, rpcPort, addressPrefix)
+        public NetworkInfo(string networkName, uint time, uint nonce, uint messageStart, int addressPrefix, int port, int rpcPort, int apiPort, string coinSymbol, string genesisHashHex = null)
+            : base(time, nonce, messageStart, addressPrefix, port, rpcPort, apiPort, coinSymbol, genesisHashHex)
         {
-            this.GenesisHashHex = genesisHashHex;
-        }
-
-        public NetworkInfo(string networkName, uint time, uint nonce, int port, int rpcPort, int addressPrefix)
-        {
-            this.Time = time;
-            this.Nonce = nonce;
-            this.Port = port;
-            this.RpcPort = rpcPort;
-            this.AddressPrefix = addressPrefix;
             this.NetworkName = networkName;
         }
+
 
         private Target GetPowLimit()
         {
@@ -81,7 +33,8 @@ namespace NBitcoin
 
         internal static NetworkInfo FromNetworkInfoRequest(string networkName, NetworkInfoRequest request)
         {
-            return new NetworkInfo(networkName, request.Time, request.Nonce, request.Port, request.RpcPort, request.AddressPrefix);
+            //uint time, uint nonce, int addressPrefix, uint messageStart, int port, int rpcPort, int apiPort, string coinSymbol
+            return new NetworkInfo(networkName, request.Time, request.Nonce, request.MessageStart, request.AddressPrefix, request.Port, request.RpcPort, request.ApiPort, request.CoinSymbol, request.GenesisHashHex);
         }
 
         internal static void ComputeGenesisHash(NetworkInfo networkInfo)
